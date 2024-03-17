@@ -1,11 +1,11 @@
-// components/UserForm.tsx
+"use client";
 import { UserData, userSchema } from "@/app/schemas/userSchema";
 import { useCreateUser } from "@/hooks/user";
-import React from "react";
+import React, { FC } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
-const View = () => {
+export const View: FC = () => {
   const {
     register,
     handleSubmit,
@@ -42,5 +42,3 @@ const View = () => {
     </form>
   );
 };
-
-export default View;
