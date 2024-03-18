@@ -1,5 +1,7 @@
 import { Toaster } from "react-hot-toast";
 import "../globals.css";
+import Providers from "../lib/providers";
+import SessionProvider from "../lib/sessionProvider";
 
 export default async function Page({
   children,
@@ -9,8 +11,14 @@ export default async function Page({
   return (
     <html lang="ja">
       <body>
-        <Toaster />
-        {children}
+        <>
+          <SessionProvider>
+            <Providers>
+              <Toaster />
+              {children}
+            </Providers>
+          </SessionProvider>
+        </>
       </body>
     </html>
   );
