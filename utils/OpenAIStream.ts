@@ -46,7 +46,6 @@ export async function OpenAIStream(payload: OpenAIStreamPayload) {
         }
       };
 
-      // optimistic error handling
       if (res.status !== 200) {
         const data = {
           status: res.status,
@@ -60,10 +59,8 @@ export async function OpenAIStream(payload: OpenAIStreamPayload) {
         return;
       }
 
-      // stream response (SSE) from OpenAI may be fragmented into multiple chunks
-      // this ensures we properly read chunks and invoke an event for each SSE event stream
       const parser = createParser(onParse);
-      // https://web.dev/streams/#asynchronous-iteration
+
       for await (const chunk of res.body as any) {
         parser.feed(decoder.decode(chunk));
       }
@@ -74,7 +71,7 @@ export async function OpenAIStream(payload: OpenAIStreamPayload) {
   const transformStream = new TransformStream({
     async transform(chunk, controller) {
       const data = decoder.decode(chunk);
-      // https://beta.openai.com/docs/api-reference/completions/create#completions/create-stream
+
       if (data === "[DONE]") {
         controller.terminate();
         return;
@@ -83,18 +80,15 @@ export async function OpenAIStream(payload: OpenAIStreamPayload) {
         const json = JSON.parse(data);
         const text = json.choices[0].delta?.content || "";
         if (counter < 2 && (text.match(/\n/) || []).length) {
-          // this is a prefix character (i.e., "\n\n"), do nothing
           return;
         }
-        // stream transformed JSON resposne as SSE
+
         const payload = { text: text };
-        // https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format
         controller.enqueue(
           encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)
         );
         counter++;
       } catch (e) {
-        // maybe parse error
         controller.error(e);
       }
     },

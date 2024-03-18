@@ -1,7 +1,5 @@
 "use client";
 import { FC } from "react";
-import type { NextPage } from "next";
-
 import { useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 
